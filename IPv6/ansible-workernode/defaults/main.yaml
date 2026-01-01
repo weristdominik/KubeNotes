@@ -1,0 +1,4 @@
+ipv6_interface: enp1s0
+containerd_version: "1.7.28-0ubuntu1~24.04.1"
+containerd_config_path: /etc/containerd/config.toml
+kubernetes_version: "1.35.0-1.1"

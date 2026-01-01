@@ -1,0 +1,32 @@
+# Kubernetes V1.35.0
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: {{ host_ipv6 }}
+nodeRegistration:
+  name: {{ inventory_hostname }}
+  kubeletExtraArgs:
+    node-ip: {{ host_ipv6 }}
+---
+apiServer:
+  extraArgs:
+    advertise-address: {{ host_ipv6 }}
+    bind-address: '::'
+    etcd-servers: https://[{{ host_ipv6 }}]:2379
+apiVersion: kubeadm.k8s.io/v1beta3
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+    extraArgs:
+      advertise-client-urls: https://[{{ host_ipv6 }}]:2379
+      initial-advertise-peer-urls: https://[{{ host_ipv6 }}]:2380
+      initial-cluster: {{ inventory_hostname }}=https://[{{ host_ipv6 }}]:2380
+      listen-client-urls: https://[{{ host_ipv6 }}]:2379
+      listen-peer-urls: https://[{{ host_ipv6 }}]:2380
+kind: ClusterConfiguration
+networking:
+  serviceSubnet: "fd00:10:96::/112"
+  podSubnet: "fd00:10:244::/56"
+scheduler:
+  extraArgs:
+    bind-address: '::'

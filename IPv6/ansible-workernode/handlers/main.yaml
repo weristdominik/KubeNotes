@@ -1,0 +1,15 @@
+- name: Restart containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted
+
+- name: Enable kubelet service
+  ansible.builtin.systemd:
+    name: kubelet
+    enabled: true
+    state: started
+
+- name: Restart kubelet
+  ansible.builtin.systemd:
+    name: kubelet.service
+    state: restarted
