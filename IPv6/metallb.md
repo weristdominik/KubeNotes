@@ -10,7 +10,7 @@ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.3/confi
 kubectl apply -f values.yaml
 ```
 
-## values.yaml
+## IPv6 values.yaml
 
 ```bash
 # kubernetes/metallb/values.yaml
