@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-validator
+  namespace: default
+  labels:
+    app: pod-validator
+    zone: local
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-validator
+  template:
+    metadata:
+      labels:
+        app: pod-validator
+        zone: local
+    spec:
+      containers:
+      - name: pod-validator
+        image: admission-webhook:v0.9.1
+        ports:
+        - containerPort: 8443
+        readinessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /hello
+            port: 8443
+          initialDelaySeconds: 3
+          periodSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pod-validator
+  namespace: default
+spec:
+  selector:
+    app: pod-validator
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 8443
