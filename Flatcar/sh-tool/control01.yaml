@@ -1,0 +1,57 @@
+version: 1.0.0
+variant: flatcar
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDSMNacUETwYWSvL8XNA54QIErHJfvolD4FqG18hdkpVInubRKZVb43erYY0UlH3xQoUBKkxj1+ssAP3IXWwwsUSc7VNXobZHjuo21+ikx96UGF5A8/JQ7Wi5yhzLoqq5dMfxPfPCWPiqbagiB8hJrorjv2q3peWxTBXw4od0pbzKSRODhUdTAuDEFFiL+fcTwcdE12dUQPKWi5U3dhB6QYFSMnlYkwxpAm1Ol7KgyzIqu8D2YpKdXVZ/xdpX93h3xoR/7nKmx8P9KuHi076w+hebZUzFOoLEDDMW0jiw2GqO/flHAo3myhlv3ftHPQcDim7BC13e+QbyjfBygux42mtVQj5HzOCgS8gl3YYkDlHSzaLg3SOF1K5nrvd3FVRuSQ9OZm5aSsTukd+5mA8t7nSLKIi4hiS4/iSeskO4pH9w5/+lX09RZpZzEKHj6sEmEcVrlADuEnsmjimrJdvtZsQWYb2GZy/Ggua4FrcfnGuDHzCnNXKUmkYoDJqiQn5d7cZcolI+BULMMjaVdZrMvgwbDqI1nxvBD05JrvPdZaVMq1pO8Xv3G9i01vfnY6l1u70DeUnHPH15KOdaHT5VnOx8H0I/bt1dqw8A63xBr9p3GrKotrcGxXcilx5kUaAiiRseaV5GVGVtFnKunDkVOojE3ioNCQ4rX7OYuWEY4yUw== netadmin@brick"
+storage:
+  links:
+    - target: /opt/extensions/kubernetes/kubernetes-v1.33.2-x86-64.raw
+      path: /etc/extensions/kubernetes.raw
+      hard: false
+  files:
+    - path: /etc/sysupdate.kubernetes.d/kubernetes-v1.33.conf
+      contents:
+        source: https://extensions.flatcar.org/extensions/kubernetes/kubernetes-v1.33.conf
+    - path: /etc/sysupdate.d/noop.conf
+      contents:
+        source: https://extensions.flatcar.org/extensions/noop.conf
+    - path: /opt/extensions/kubernetes/kubernetes-v1.33.2-x86-64.raw
+      contents:
+        source: https://extensions.flatcar.org/extensions/kubernetes-v1.33.2-x86-64.raw
+    - path: /etc/hostname
+      contents:
+        inline: "control01"
+systemd:
+  units:
+    - name: systemd-sysupdate.timer
+      enabled: true
+    - name: systemd-sysupdate.service
+      dropins:
+        - name: kubernetes.conf
+          contents: |
+            [Service]
+            ExecStartPre=/usr/bin/sh -c "readlink --canonicalize /etc/extensions/kubernetes.raw > /tmp/kubernetes"
+            ExecStartPre=/usr/lib/systemd/systemd-sysupdate -C kubernetes update
+            ExecStartPost=/usr/bin/sh -c "readlink --canonicalize /etc/extensions/kubernetes.raw > /tmp/kubernetes-new"
+            ExecStartPost=/usr/bin/sh -c "if ! cmp --silent /tmp/kubernetes /tmp/kubernetes-new; then touch /run/reboot-required; fi"
+    - name: locksmithd.service
+      # NOTE: To coordinate the node reboot in this context, we recommend to use Kured.
+      mask: true
+    - name: kubeadm.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Kubeadm service
+        Requires=containerd.service
+        After=containerd.service
+        After=network-online.target
+        ConditionPathExists=!/etc/kubernetes/kubelet.conf
+        [Service]
+        ExecStartPre=/usr/bin/kubeadm init
+        ExecStartPre=/usr/bin/mkdir /home/core/.kube
+        ExecStartPre=/usr/bin/cp /etc/kubernetes/admin.conf /home/core/.kube/config
+        ExecStart=/usr/bin/chown -R core:core /home/core/.kube
+        [Install]
+        WantedBy=multi-user.target
