@@ -1,0 +1,3 @@
+cilium-l7-oidc/auth-py-client/.venv
+cilium-l7-oidc/realm-export.json
+src/docker-images/.venv

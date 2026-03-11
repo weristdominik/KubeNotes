@@ -1,0 +1,26 @@
+name: Workflow app1
+run-name: executed by ${{ github.actor }}
+on:
+  push:
+    paths:
+      - 'src/docker-images/app1/**'
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v5
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ghcr.io/weristdominik/app1:latest \
+            src/docker-images/app1
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/weristdominik/app1:latest
