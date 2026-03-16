@@ -27,9 +27,8 @@ keycloak_openid = KeycloakOpenID(
 
 def valid_session():
     """
-    Returns a tuple (is_valid, refreshed)
-        - is_valid: True if ID token valid (or successfully refreshed)
-        - refreshed: True if refresh token was used to renew session
+    Returns:
+        (is_valid, refreshed)
     """
     id_token = session.get("id_token")
     refresh_token = session.get("refresh_token")
