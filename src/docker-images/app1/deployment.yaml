@@ -1,7 +1,7 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: auth-py-client-route
+  name: http-route-app1
   namespace: default
 spec:
   parentRefs:
@@ -11,12 +11,46 @@ spec:
     - path:
         type: PathPrefix
         value: /app1
-    # filters:
-    # - type: URLRewrite
-    #   urlRewrite:
-    #     path:
-    #       type: ReplacePrefixMatch
-    #       replacePrefixMatch: /
     backendRefs:
-    - name: auth-py-client
+    - name: http-app1
       port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-app1
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: app1
+  ports:
+    - port: 80
+      targetPort: 5000
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app1
+  labels:
+    app: app1
+spec:
+  containers:
+  - name: app1
+    image: ghcr.io/weristdominik/app1:latest
+    imagePullPolicy: Always
+    env:
+      - name: PREFIX
+        value: "app1"
+      - name: PORT
+        value: "5000"
+      - name: KEYCLOAK_SERVER
+        value: "http://192.168.178.250/auth"
+      - name: CLIENT_ID
+        value: "app1"
+      - name: CLIENT_SECRET
+        value: "XGGz8TftoaIHq0RMFVxHjQeBz2ZXSIrX"
+      - name: REDIRECT_URI
+        value: "http://192.168.178.250/app1/callback"
+---
+   
