@@ -1,6 +1,7 @@
 import os
+import json
 from functools import wraps
-from flask import Flask, Blueprint, jsonify, redirect, session, request, url_for
+from flask import Flask, Blueprint, jsonify, redirect, session, request, url_for, Response
 from keycloak import KeycloakOpenID
 from keycloak.exceptions import KeycloakError
 from jwcrypto.jwt import JWTExpired
@@ -118,7 +119,7 @@ def home():
     access_token = session.get("access_token")
     refresh_token = session.get("refresh_token")
 
-    return jsonify({
+    data ={
         "status": "success",
         "message": "Dashboard (app1)",
         "session": {
@@ -132,7 +133,13 @@ def home():
             },
             "refresh_token": refresh_token
         }
-    }), 200
+    }
+
+    return Response(
+        json.dumps(data, indent=4),
+        mimetype='application/json',
+        status=200
+    )
 
 
 app = Flask(__name__)
