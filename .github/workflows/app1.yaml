@@ -3,28 +3,59 @@ run-name: executed by ${{ github.actor }}
 on:
   push:
     paths:
-      - 'src/docker-images/app1/**'
+      - 'src/docker-images/app1/Dockerfile'
+      - 'src/docker-images/app1/requirements.txt'
+      - 'src/docker-images/app1/main.py'
+
 permissions:
   contents: read
   packages: write
+
 jobs:
-  build-and-publish:
+  build:
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
       - name: Check out repository code
         uses: actions/checkout@v5
+
+      - name: Build Docker image
+        run: |
+          docker build -t app1:test src/docker-images/app1
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Run container for testing
+        run: |
+          docker run -d --name app1-test -p 5000:5000 -e PREFIX=apptest app1:test
+          sleep 5
+          curl -f http://localhost:5000/apptest/ || exit 1
+        # -f ensures curl fails if HTTP status is not 200
+
+      - name: Stop and remove container
+        run: |
+          docker stop app1-test
+          docker rm app1-test
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v5
+
       - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build Docker image
         run: |
-          docker build \
-            -t ghcr.io/weristdominik/app1:latest \
-            src/docker-images/app1
+          docker build -t ghcr.io/weristdominik/app1:latest src/docker-images/app1
+
       - name: Push Docker image
         run: |
           docker push ghcr.io/weristdominik/app1:latest
