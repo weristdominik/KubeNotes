@@ -61,7 +61,7 @@ def login_required(f):
     def wrapper(*args, **kwargs):
         is_valid, _ = valid_session()
         if not is_valid:
-            return redirect(url_for('login'))
+            return redirect(url_for('app1.login'))
         return f(*args, **kwargs)
 
     return wrapper
@@ -98,7 +98,7 @@ def callback():
         session['id_token'] = token['id_token']
         session['access_token'] = token['access_token']
         session['refresh_token'] = token['refresh_token']
-        return redirect("/home")
+        return redirect(url_for('app1.home'))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -106,7 +106,18 @@ def callback():
 @bp.route("/home")
 @login_required
 def home():
-    return jsonify({"message": "Dashboard (app1)"})
+    id_token = session.get("id_token")
+    access_token = session.get("access_token")
+    refresh_token = session.get("refresh_token")
+
+    return jsonify({
+        "message": "Dashboard (app1)",
+        "tokens": {
+            "id-token": id_token,
+            "access-token": access_token,
+            "refresh-token": refresh_token
+        }
+    }), 200
 
 
 app = Flask(__name__)
