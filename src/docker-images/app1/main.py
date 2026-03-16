@@ -3,6 +3,7 @@ from functools import wraps
 from flask import Flask, Blueprint, jsonify, redirect, session, request, url_for
 from keycloak import KeycloakOpenID
 from keycloak.exceptions import KeycloakError
+from jwcrypto.jwt import JWTExpired
 
 PREFIX = os.getenv("PREFIX", "")
 PORT = int(os.getenv("PORT", 5000))
@@ -41,6 +42,12 @@ def valid_session():
         return True, False
     except KeycloakError:
         if not refresh_token:
+            session.clear()
+            return False, False
+
+    except JWTExpired:
+        if not refresh_token:
+            session.clear()
             return False, False
 
         try:
@@ -53,6 +60,7 @@ def valid_session():
             return True, True
 
         except KeycloakError:
+            session.clear()
             return False, False
 
 
@@ -111,11 +119,18 @@ def home():
     refresh_token = session.get("refresh_token")
 
     return jsonify({
+        "status": "success",
         "message": "Dashboard (app1)",
-        "tokens": {
-            "id-token": id_token,
-            "access-token": access_token,
-            "refresh-token": refresh_token
+        "session": {
+            "id_token": {
+                "raw": id_token,
+                "claims": keycloak_openid.decode_token(id_token)
+            },
+            "access_token": {
+                "raw": access_token,
+                "claims": keycloak_openid.decode_token(access_token)
+            },
+            "refresh_token": refresh_token
         }
     }), 200
 
