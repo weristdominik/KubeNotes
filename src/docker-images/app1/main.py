@@ -1,6 +1,6 @@
 import os
 from functools import wraps
-from flask import Flask, Blueprint, jsonify, redirect, session, request
+from flask import Flask, Blueprint, jsonify, redirect, session, request, url_for
 from keycloak import KeycloakOpenID
 from keycloak.exceptions import KeycloakError
 
@@ -61,7 +61,7 @@ def login_required(f):
     def wrapper(*args, **kwargs):
         is_valid, _ = valid_session()
         if not is_valid:
-            return redirect("/login")
+            return redirect(url_for('login'))
         return f(*args, **kwargs)
 
     return wrapper
