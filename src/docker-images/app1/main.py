@@ -119,7 +119,7 @@ def home():
     access_token = session.get("access_token")
     refresh_token = session.get("refresh_token")
 
-    data ={
+    data = {
         "status": "success",
         "message": "Dashboard (app1)",
         "session": {
