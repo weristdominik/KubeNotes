@@ -142,6 +142,13 @@ def home():
     )
 
 
+@bp.route("/logout")
+@login_required
+def logout():
+    session.clear()
+    return 'Logout successful please visit <a href="app1/login">to Login with Keycloak</a>'
+
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.register_blueprint(bp)
