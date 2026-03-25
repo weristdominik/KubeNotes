@@ -31,6 +31,7 @@ def valid_session():
     """
     Returns:
         (is_valid, refreshed)
+    In other routes use '@login_required'
     """
     id_token = session.get("id_token")
     refresh_token = session.get("refresh_token")
