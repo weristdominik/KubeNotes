@@ -163,7 +163,7 @@ def logout():
 
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "q3W5p2Rk9Y4vN7uP1s8zLQy0aJbVtUo=")
 app.register_blueprint(bp)
 
 if __name__ == "__main__":
