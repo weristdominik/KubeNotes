@@ -20,8 +20,8 @@ permissions:
   packages: write
 
 jobs:
-  build-test-push:
-    runs-on: ubuntu-latest
+  build-test-push-deploy:
+    runs-on: self-hosted
 
     steps:
       # https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images#publishing-images-to-github-packages
@@ -83,16 +83,6 @@ jobs:
 
       # https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets
       # https://github.com/actions-hub/kubectl/tree/master
-      - name: Configure kubectl
-        run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
-
-      - name: Get pods
-        run: |
-          kubectl --kubeconfig=$HOME/.kube/config get nodes
-    
       - name: Update Deployment image
         uses: actions-hub/kubectl@master
         env:
