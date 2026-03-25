@@ -148,7 +148,15 @@ def home():
 @bp.route("/logout")
 @login_required
 def logout():
+    refresh_token = session.get('refresh_token')
     session.clear()
+    # Call Keycloak logout
+    if refresh_token:
+        try:
+            keycloak_openid.logout(refresh_token)
+        except Exception as e:
+            print(f"Keycloak logout failed: {e}")
+
     return jsonify({"message": "Logout successful"})
 
 
