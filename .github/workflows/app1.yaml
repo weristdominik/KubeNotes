@@ -88,5 +88,14 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         with:
-          args: set image deployment/app1-deployment \
-                  app1-container=${{ steps.meta.outputs.tags }} -n app1-ns
+          args: |
+            set image deployment/app1-deployment \
+              app1=${{ env.REGISTRY }}/${{ github.repository }}/app1:${{ github.sha }} \
+              -n app1-ns
+      
+      - name: Wait for rollout
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: rollout status deployment/app1-deployment -n app1-ns
