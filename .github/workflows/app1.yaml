@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/app1
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/kubenotes/app1
   TEST_TAG: app1:test
   CONTEXT: src/docker-images/app1
   TEST_HOST_PORT: 8081
@@ -88,9 +88,7 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         with:
-          args: set image deployment/app1-deployment \
-                app1=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-                -n app1-ns
+          args: set image deployment/app1-deployment app1=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -n app1-ns
       
       - name: Wait for rollout
         uses: actions-hub/kubectl@master
