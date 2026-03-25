@@ -83,6 +83,14 @@ jobs:
 
       # https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets
       # https://github.com/actions-hub/kubectl/tree/master
+      - name: Debug kubeconfig
+        run: |
+          echo "$KUBE_CONFIG" | base64 -d > kubeconfig.yaml || echo "$KUBE_CONFIG" > kubeconfig.yaml
+          cat kubeconfig.yaml
+          kubectl --kubeconfig=kubeconfig.yaml get nodes
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+    
       - name: Update Deployment image
         uses: actions-hub/kubectl@master
         env:
