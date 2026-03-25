@@ -91,7 +91,7 @@ jobs:
 
       - name: Get pods
         run: |
-          kubectl get nodes
+          kubectl --kubeconfig=$HOME/.kube/config get nodes
     
       - name: Update Deployment image
         uses: actions-hub/kubectl@master
