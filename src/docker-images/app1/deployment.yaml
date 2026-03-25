@@ -1,25 +1,33 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app1-ns
+  labels:
+    shared-gateway-access: "true"
+---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: http-route-app1
-  namespace: default
+  name: app1
+  namespace: app1-ns
 spec:
   parentRefs:
-    - name: my-gateway
+  - name: shared-gateway
+    namespace: infra-ns
   rules:
   - matches:
     - path:
         type: PathPrefix
         value: /app1
     backendRefs:
-    - name: http-app1
+    - name: app1
       port: 80
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: http-app1
-  namespace: default
+  name: app1
+  namespace: app1-ns
 spec:
   type: ClusterIP
   selector:
@@ -28,29 +36,46 @@ spec:
     - port: 80
       targetPort: 5000
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: app1
+  name: app1-deployment
+  namespace: app1-ns
   labels:
     app: app1
 spec:
-  containers:
-  - name: app1
-    image: ghcr.io/weristdominik/app1:latest
-    imagePullPolicy: Always
-    env:
-      - name: PREFIX
-        value: "app1"
-      - name: PORT
-        value: "5000"
-      - name: KEYCLOAK_SERVER
-        value: "http://192.168.178.250/auth/"
-      - name: CLIENT_ID
-        value: "app1"
-      - name: CLIENT_SECRET
-        value: "XGGz8TftoaIHq0RMFVxHjQeBz2ZXSIrX"
-      - name: REDIRECT_URI
-        value: "http://192.168.178.250/app1/callback"
----
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1
+  template:
+    metadata:
+      labels:
+        app: app1
+    spec:
+      containers:
+      - name: app1
+        image: ghcr.io/weristdominik/kubenotes/app1:main
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: PREFIX
+            value: "app1"
+          - name: PORT
+            value: "5000"
+          - name: KEYCLOAK_SERVER
+            value: "http://192.168.178.250/auth/"
+          - name: CLIENT_ID
+            value: "app1"
+          - name: CLIENT_SECRET
+            value: "XGGz8TftoaIHq0RMFVxHjQeBz2ZXSIrX"
+          - name: REDIRECT_URI
+            value: "http://192.168.178.250/app1/callback"
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
    
