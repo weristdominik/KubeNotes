@@ -147,7 +147,7 @@ def home():
 @login_required
 def logout():
     session.clear()
-    return 'Logout successful please visit <a href="app1/login">to Login with Keycloak</a>'
+    return jsonify({"message": "Logout successful"})
 
 
 app = Flask(__name__)
