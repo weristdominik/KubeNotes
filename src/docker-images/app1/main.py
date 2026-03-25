@@ -14,6 +14,8 @@ REALM_NAME = os.getenv("REALM_NAME", "master")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 REDIRECT_URI = os.getenv("REDIRECT_URI")
+POD_NAME = os.getenv("MY_POD_NAME", "unknown")
+POD_IP = os.getenv("MY_POD_IP", "unknown")
 
 if PREFIX and not PREFIX.startswith("/"):
     PREFIX = "/" + PREFIX
@@ -82,7 +84,7 @@ bp = Blueprint("app1", __name__, url_prefix=PREFIX)
 
 @bp.route("/")
 def hello_world():
-    return jsonify({"message": "Hello, from app1!"})
+    return jsonify({"message": "Hello, from app1!", "pod_name": POD_NAME, "pod_ip": POD_IP})
 
 
 @bp.route("/login")
