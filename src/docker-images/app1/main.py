@@ -14,7 +14,6 @@ REALM_NAME = os.getenv("REALM_NAME", "master")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 REDIRECT_URI = os.getenv("REDIRECT_URI")
-# 
 POD_NAME = os.getenv("MY_POD_NAME", "unknown")
 POD_IP = os.getenv("MY_POD_IP", "unknown")
 
