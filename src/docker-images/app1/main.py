@@ -125,6 +125,8 @@ def home():
     data = {
         "status": "success",
         "message": "Dashboard (app1)",
+        "pod_name": POD_NAME,
+        "pod_ip": POD_IP,
         "session": {
             "id_token": {
                 "raw": id_token,
