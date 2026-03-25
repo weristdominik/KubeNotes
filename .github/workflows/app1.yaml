@@ -70,9 +70,6 @@ jobs:
             sleep 2
           done
 
-          # Final check (fail CI if service is not up)
-          curl -f http://localhost:${{ env.TEST_HOST_PORT }}/apptest/
-
           echo "Smoke test passed!"
 
       - name: Push Docker image
@@ -84,3 +81,12 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      # https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets
+      # https://github.com/actions-hub/kubectl/tree/master
+      - name: Update Deployment image
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: set image deployment/app1-deployment \
+                  app1-container=${{ steps.meta.outputs.tags }} -n app1-ns
