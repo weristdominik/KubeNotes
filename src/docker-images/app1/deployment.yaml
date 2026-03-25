@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
       - name: app1
-        image: ghcr.io/weristdominik/kubenotes/app1:main
+        image: ghcr.io/weristdominik/kubenotes/app1@sha256:cd84a5c0069988720cbb0099504568f8e5e21e13fb1f9146890b78688aada2d0
         imagePullPolicy: IfNotPresent
         env:
           - name: PREFIX
@@ -67,7 +67,7 @@ spec:
           - name: CLIENT_ID
             value: "app1"
           - name: CLIENT_SECRET
-            value: "XGGz8TftoaIHq0RMFVxHjQeBz2ZXSIrX"
+            value: "TYAOIfWpPjZabKPn4FAVsxSpskT0Wj2C"
           - name: REDIRECT_URI
             value: "http://192.168.178.250/app1/callback"
           - name: MY_POD_NAME
