@@ -20,8 +20,8 @@ permissions:
   packages: write
 
 jobs:
-  build-test-push-deploy:
-    runs-on: self-hosted
+  build-test-push:
+    runs-on: ubuntu-latest
 
     steps:
       # https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images#publishing-images-to-github-packages
@@ -80,19 +80,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      # https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets
-      # https://github.com/actions-hub/kubectl/tree/master
-      - name: Update Deployment image
-        uses: actions-hub/kubectl@master
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        with:
-          args: set image deployment/app1-deployment app1=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -n app1-ns
-      
-      - name: Wait for rollout
-        uses: actions-hub/kubectl@master
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        with:
-          args: rollout status deployment/app1-deployment -n app1-ns
