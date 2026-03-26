@@ -1,0 +1,82 @@
+name: Create and publish app2 image
+
+on:
+  push:
+    paths:
+      - 'src/docker-images/app2/main.py'
+      - 'src/docker-images/app2/Dockerfile'
+      - 'src/docker-images/app2/requirements.txt'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/kubenotes/app2
+#   TEST_TAG: app1:test
+  CONTEXT: src/docker-images/app2
+#   TEST_HOST_PORT: 8081
+#   TEST_CONTAINER_PORT: 8081
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images#publishing-images-to-github-packages
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+#       # https://docs.docker.com/build/ci/github-actions/test-before-push/
+#       - name: Build and export to Docker
+#         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+#         with:
+#           context: ${{ env.CONTEXT }}
+#           load: true
+#           tags: ${{ env.TEST_TAG }}
+# 
+#       - name: Test
+#         run: |
+#           set -e
+#           trap "docker rm -f app1-test || true" EXIT
+# 
+#           docker run -d \
+#             -p ${{ env.TEST_HOST_PORT }}:${{ env.TEST_CONTAINER_PORT }} \
+#             --name app1-test \
+#             -e PREFIX=apptest \
+#             -e PORT=${{ env.TEST_CONTAINER_PORT }} \
+#             ${{ env.TEST_TAG }}
+# 
+#           echo "Waiting for service to respond..."
+#           for i in {1..15}; do
+#             if curl -f http://localhost:${{ env.TEST_HOST_PORT }}/apptest/; then
+#               echo "Service is up"
+#               break
+#             fi
+#             sleep 2
+#           done
+# 
+#           echo "Smoke test passed!"
+
+      - name: Push Docker image
+        id: push
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: ${{ env.CONTEXT }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
