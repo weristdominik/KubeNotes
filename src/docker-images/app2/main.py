@@ -73,7 +73,7 @@ def login_required(f):
     def wrapper(*args, **kwargs):
         is_valid, _ = valid_session()
         if not is_valid:
-            return redirect(url_for('app2.error'))
+            return redirect(url_for('app2.login'))
         return f(*args, **kwargs)
 
     return wrapper
@@ -88,9 +88,13 @@ def info():
     return jsonify({"message": "Hello, from app2!", "pod_name": POD_NAME, "pod_ip": POD_IP})
 
 
-@bp.route("/error")
-def error():
-    return jsonify({"server error": "custom", "pod_name": POD_NAME, "pod_ip": POD_IP})
+@bp.route("/login")
+def login():
+    auth_url = keycloak_openid.auth_url(
+        redirect_uri=REDIRECT_URI,
+        scope="openid profile email"
+    )
+    return redirect(auth_url)
 
 
 @bp.route("/callback")
