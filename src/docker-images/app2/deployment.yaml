@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app2-ns
+  labels:
+    shared-gateway-access: "true"
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: app2
+  namespace: app2-ns
+spec:
+  parentRefs:
+  - name: shared-gateway
+    namespace: infra-ns
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /app2
+    backendRefs:
+    - name: app2
+      port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app2
+  namespace: app2-ns
+spec:
+  type: ClusterIP
+  selector:
+    app: app2
+  ports:
+    - port: 80
+      targetPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app2-deployment
+  namespace: app2-ns
+  labels:
+    app: app2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2
+  template:
+    metadata:
+      labels:
+        app: app2
+    spec:
+      containers:
+      - name: app2
+        image: ghcr.io/weristdominik/kubenotes/app2:main
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: PREFIX
+            value: "app2"
+          - name: PORT
+            value: "5000"
+          - name: KEYCLOAK_SERVER
+            value: "http://192.168.178.250/auth/"
+          - name: CLIENT_ID
+            value: "app2"
+          - name: CLIENT_SECRET
+            value: "wvr9Ce3WhChNHxT2yflA7bIHjbwAzobF"
+          - name: REDIRECT_URI
+            value: "http://192.168.178.250/app2/callback"
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+   
