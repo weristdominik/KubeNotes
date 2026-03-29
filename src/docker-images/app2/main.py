@@ -71,6 +71,18 @@ def valid_session():
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
+        # if bearer token in header
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+
+            try:
+                keycloak_openid.decode_token(token)
+                return f(*args, **kwargs)
+            except Exception:
+                return jsonify({"error": "Invalid token"}), 401
+
+        # if flask session
         is_valid, _ = valid_session()
         if not is_valid:
             return redirect(url_for('app2.login'))

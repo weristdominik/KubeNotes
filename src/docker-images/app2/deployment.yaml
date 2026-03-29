@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
       - name: app2
-        image: ghcr.io/weristdominik/kubenotes/app2@sha256:1d05083a62a0f6e8f2bdfb05c1a60af98961da1986fd5a4b15b1ad049e627525
+        image: ghcr.io/weristdominik/kubenotes/app2@sha256:a5bead0da695e47649655c68cd78eb1c755a12719748cf37bf7f974bf6c509bd
         imagePullPolicy: IfNotPresent
         env:
           - name: PREFIX
