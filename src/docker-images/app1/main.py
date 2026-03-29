@@ -1,5 +1,6 @@
 import os
 import json
+import requests
 from functools import wraps
 from flask import Flask, Blueprint, jsonify, redirect, session, request, url_for, Response
 from keycloak import KeycloakOpenID
@@ -160,6 +161,25 @@ def logout():
             print(f"Keycloak logout failed: {e}")
 
     return jsonify({"message": "Logout successful"})
+
+
+@bp.route("/system")
+@login_required
+def system():
+    try:
+        access_token = session.get("access_token")
+        headers = {}
+        headers["Authorization"] = f"Bearer {access_token}"
+
+        response = requests.get(
+                "http://app2.app2-ns.svc.cluster.local/app2/status",
+                headers=headers,
+                timeout=5
+            )
+
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": f"Failed to reach app2: {str(e)}"}), 500
 
 
 app = Flask(__name__)

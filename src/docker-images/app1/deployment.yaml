@@ -44,7 +44,7 @@ metadata:
   labels:
     app: app1
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: app1
@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
       - name: app1
-        image: ghcr.io/weristdominik/kubenotes/app1@sha256:cd84a5c0069988720cbb0099504568f8e5e21e13fb1f9146890b78688aada2d0
+        image: ghcr.io/weristdominik/kubenotes/app1@sha256:e7627a047dbbda7ab8f6eb625efa2041fee9af9be250c96fe62e85b9944eea8b
         imagePullPolicy: IfNotPresent
         env:
           - name: PREFIX
@@ -67,7 +67,7 @@ spec:
           - name: CLIENT_ID
             value: "app1"
           - name: CLIENT_SECRET
-            value: "TYAOIfWpPjZabKPn4FAVsxSpskT0Wj2C"
+            value: "app1-client-secret"
           - name: REDIRECT_URI
             value: "http://192.168.178.250/app1/callback"
           - name: MY_POD_NAME
