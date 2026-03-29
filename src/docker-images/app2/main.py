@@ -116,6 +116,12 @@ def callback():
         return jsonify({"error": str(e)}), 500
 
 
+@bp.route("/status")
+@login_required
+def status():
+    return jsonify({"message": "up and running OK"}), 200
+
+
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf")
 app.register_blueprint(bp)
