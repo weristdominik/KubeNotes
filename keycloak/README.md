@@ -9,5 +9,5 @@ Store file at `cilium-l7-oidc/realm-export.json`
 create configmap for [keycloak.yaml](../keycloak.yaml)
 
 ```bash
-kubectl create configmap keycloak-realm --from-file=realm.json=realm-export.json
+kubectl create configmap keycloak-realm --from-file=realm.json=realm-export.json -n keycloak-ns
 ```
